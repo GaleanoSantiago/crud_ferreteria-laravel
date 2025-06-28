@@ -9,7 +9,7 @@
             @csrf
             <div class="form-group">
                 <label for="nombre">Nombre de Marca</label>
-                <input type="text" name="descripcion" class="form-control" 
+                <input type="text" name="nombre" class="form-control" 
                     id="nombre" value="{{ $marca->marcas_descripcion }}" required>
             </div>
             <input type="hidden" name="id" value="{{ $marca->id_marcas }}">

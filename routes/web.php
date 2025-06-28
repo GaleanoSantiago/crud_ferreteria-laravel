@@ -1,11 +1,79 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Validator;
 
 Route::get('/', function () {
     return view('inicio');
 });
 
+function getValidationRules($tabla, $id = null)
+{
+    switch ($tabla) {
+        case 'marcas':
+            return [
+                'nombre' => 'required|string|max:250|unique:marcas,marcas_descripcion' . ($id ? ",$id,id_marcas" : ''),
+            ];
+
+        case 'medidas':
+            return [
+                'descripcion' => 'required|string|max:250|unique:medidas,descripcion' . ($id ? ",$id,id_medida" : ''),
+                'abreviatura' => 'required|string|max:250',
+                'estado' => 'required|boolean',
+            ];
+
+        case 'condicioniva':
+            return [
+                'descripcion' => 'required|string|max:250|unique:condicion,descripcion' . ($id ? ",$id,id_condicioniva" : ''),
+            ];
+
+        case 'provincias':
+            return [
+                'descripcion' => 'required|string|max:250|unique:provincias,descripcion' . ($id ? ",$id,id_provincia" : ''),
+            ];
+
+        case 'proveedores':
+            return [
+                'razon_social' => 'required|string|max:250',
+                'telefono_contacto' => 'required|numeric|digits:10',
+                'persona_contacto' => 'required|string|max:250',
+                'cuit' => 'required|string|numeric|digits:11|unique:proveedores,cuit' . ($id ? ",$id,id_proveedores" : ''),
+                'rela_condicioniva' => 'required|exists:condicion,id_condicioniva',
+            ];
+
+        case 'clientes':
+            return [
+                'nombre' => 'required|string|max:250',
+                'apellido' => 'required|string|max:250',
+                'dni' => 'required|numeric|digits:8|unique:clientes,dni' . ($id ? ",$id,id_clientes" : ''),
+                'fechanacimiento' => 'required|date|before:today',
+                'rela_provincia' => 'required|exists:provincias,id_provincia',
+                'localidad' => 'required|string|max:250',
+                'direccion' => 'required|string|max:250',
+                'cuit' => 'required|string|numeric|digits:11|unique:clientes,cuit' . ($id ? ",$id,id_clientes" : ''),
+                'email' => 'required|email|max:250|unique:clientes,email' . ($id ? ",$id,id_clientes" : ''),
+                'telefono' => 'required|numeric|digits:10',
+                'rela_condicioniva' => 'required|exists:condicion,id_condicioniva',
+            ];
+
+        case 'productos':
+            return [
+                'descripcion' => 'required|string|max:30',
+                'rela_marcas' => 'required|exists:marcas,id_marcas',
+                'rela_medidas' => 'required|exists:medidas,id_medida',
+                'rela_rubro' => 'required|integer',
+                'cantidad_actual' => 'required|numeric|min:1',
+                'precio_venta' => 'required|numeric|min:1',
+                'precio_compra' => 'required|numeric|min:1',
+                'porcentaje_utilidad' => 'required|numeric|min:0',
+                'rela_proveedor' => 'required|exists:proveedores,id_proveedores',
+                'cantidad_minima' => 'required|numeric|min:1',
+            ];
+
+        default:
+            return [];
+    }
+}
 
 //  ========================== Crud de Marcas ==============================
 // Funcion Reutilizable para traer marcas
@@ -39,6 +107,13 @@ Route::post('/marcas/store', function ()
 {
     //capturamos dato enviado por el form
     $nombre = request()->nombre;
+    $validator = Validator::make(request()->all(), getValidationRules('marcas'));
+
+    if ($validator->fails()) {
+        return redirect('/marcas/create')
+            ->withErrors($validator)
+            ->withInput();
+    }
     //insertar dato en tabla 
     try {
         
@@ -79,9 +154,15 @@ Route::get('/marcas/edit/{id}', function ($id)
  Route::patch('/marcas/update', function ()
  {
      //capturamos datos enviados popr el form
-     $id = request()->id;
-     $descripcion = request()->descripcion;
-     
+    $id = request()->id;
+    $descripcion = request()->nombre;
+
+    // Validacion
+    $validator = Validator::make(request()->all(), getValidationRules('marcas', $id));
+    if ($validator->fails()) {
+        return redirect("/marcas/edit/$id")->withErrors($validator)->withInput();
+    }
+
      try {
          DB::table('marcas')
                  ->where( 'id_marcas', $id )
@@ -157,9 +238,16 @@ Route::get('/medidas/create', function () {
 });
 
 Route::post('/medidas/store', function () {
+
     $descripcion = request()->descripcion;
     $abreviatura = request()->abreviatura;
     $estado = request()->estado;
+
+    $validator = Validator::make(request()->all(), getValidationRules('medidas'));
+    if ($validator->fails()) {
+        return redirect('/medidas/create')->withErrors($validator)->withInput();
+    }
+
     try {
         DB::table('medidas')->insert([
             'descripcion' => $descripcion,
@@ -187,11 +275,16 @@ Route::get('/medidas/edit/{id}', function ($id) {
 
 // Actualizar medidas
 Route::patch('/medidas/update', function () {
+
     $id = request()->id;
     $descripcion = request()->descripcion;
     $abreviatura = request()->abreviatura;
     $estado = request()->estado;
-
+    // Validaciones
+    $validator = Validator::make(request()->all(), getValidationRules('medidas', $id));
+    if ($validator->fails()) {
+        return redirect("/medidas/edit/$id")->withErrors($validator)->withInput();
+    }
     try {
         DB::table('medidas')
             ->where('id_medida', $id)
@@ -263,6 +356,13 @@ Route::get('/condicioniva/create', function () {
 Route::post('/condicioniva/store', function () {
     $descripcion = request()->descripcion;
 
+    
+    $validator = Validator::make(request()->all(), getValidationRules('condicioniva'));
+    if ($validator->fails()) {
+        return redirect('/condicioniva/create')->withErrors($validator)->withInput();
+    }
+
+
     try {
         DB::table('condicion')->insert([
             'descripcion' => $descripcion
@@ -290,6 +390,12 @@ Route::get('/condicioniva/edit/{id}', function ($id) {
 Route::patch('/condicioniva/update', function () {
     $id = request()->id;
     $descripcion = request()->descripcion;
+
+    // Validacion
+    $validator = Validator::make(request()->all(), getValidationRules('condicioniva', $id));
+    if ($validator->fails()) {
+        return redirect("/condicioniva/edit/$id")->withErrors($validator)->withInput();
+    }
 
     try {
         DB::table('condicion')
@@ -354,6 +460,12 @@ Route::get('/provincias/create', function () {
 Route::post('/provincias/store', function () {
     $descripcion = request()->descripcion;
 
+    // Validacion
+    $validator = Validator::make(request()->all(), getValidationRules('provincias'));
+    if ($validator->fails()) {
+        return redirect('/provincias/create')->withErrors($validator)->withInput();
+    }
+
     try {
         DB::table('provincias')->insert([
             'descripcion' => $descripcion
@@ -379,6 +491,11 @@ Route::get('/provincias/edit/{id}', function ($id) {
 Route::patch('/provincias/update', function () {
     $id = request()->id;
     $descripcion = request()->descripcion;
+
+    $validator = Validator::make(request()->all(), getValidationRules('provincias', $id));
+    if ($validator->fails()) {
+        return redirect("/provincias/edit/$id")->withErrors($validator)->withInput();
+    }
 
     try {
         DB::table('provincias')
@@ -457,6 +574,12 @@ Route::post('/proveedores/store', function () {
     $cuit = request()->cuit;
     $rela_condicioniva = request()->rela_condicioniva;
 
+    // Validacion
+    $validator = Validator::make(request()->all(), getValidationRules('proveedores'));
+    if ($validator->fails()) {
+        return redirect('/proveedores/create')->withErrors($validator)->withInput();
+    }
+
     try {
         DB::table('proveedores')->insert([
             'razon_social' => $razon_social,
@@ -499,6 +622,11 @@ Route::patch('/proveedores/update', function () {
         'cuit' => request()->cuit,
         'rela_condicioniva' => request()->rela_condicioniva,
     ];
+
+    $validator = Validator::make(request()->all(), getValidationRules('proveedores', $id));
+    if ($validator->fails()) {
+        return redirect("/proveedores/edit/$id")->withErrors($validator)->withInput();
+    }
 
     try {
         DB::table('proveedores')->where('id_proveedores', $id)->update($data);
@@ -591,6 +719,11 @@ Route::post('/clientes/store', function ()
     $telefono = request()->telefono;
     $rela_condicioniva = request()->rela_condicioniva;
 
+    $validator = Validator::make(request()->all(), getValidationRules('clientes'));
+    if ($validator->fails()) {
+        return redirect('/clientes/create')->withErrors($validator)->withInput();
+    }
+
     //insertar dato en tabla 
     try {
         
@@ -661,7 +794,11 @@ Route::patch('/clientes/update', function () {
         'telefono' => request()->telefono,
         'rela_condicioniva' => request()->rela_condicioniva
     ];
-
+    $validator = Validator::make(request()->all(), getValidationRules('clientes', $id));
+    if ($validator->fails()) {
+        return redirect("/clientes/edit/$id")->withErrors($validator)->withInput();
+    }
+    
     try {
         DB::table('clientes')
             ->where('id_clientes', $id)
@@ -776,6 +913,11 @@ Route::post('/productos/store', function () {
     $rela_proveedor = request()->rela_proveedor;
     $cantidad_minima = request()->cantidad_minima;
 
+    $validator = Validator::make(request()->all(), getValidationRules('productos'));
+    if ($validator->fails()) {
+        return redirect('/productos/create')->withErrors($validator)->withInput();
+    }
+
     try {
         DB::table('productos')->insert([
             'descripcion' => $descripcion,
@@ -832,6 +974,12 @@ Route::patch('/productos/update', function () {
     $porcentaje_utilidad = request()->porcentaje_utilidad;
     $rela_proveedor = request()->rela_proveedor;
     $cantidad_minima = request()->cantidad_minima;
+
+    // Validaciones
+    $validator = Validator::make(request()->all(), getValidationRules('productos', $id));
+    if ($validator->fails()) {
+        return redirect("/productos/edit/$id")->withErrors($validator)->withInput();
+    }
 
     try {
         DB::table('productos')->where('id_productos', $id)->update([
