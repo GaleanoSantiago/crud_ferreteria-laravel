@@ -1,0 +1,43 @@
+*{
+    box-sizing: border-box;
+    padding: 0;
+    margin:0;
+}
+body{
+    background: #fafafa;
+}
+.navbar{
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+.container-card{
+    justify-content: space-around;
+    gap:20px;
+    padding: 30px 0;
+}
+
+.card{
+    width: 300px;
+    height: 140px;
+    background: #fafafa;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.card .card-img-container{
+    height: 200px;
+    border: 1px solid #ccc;
+}
+.card .btn-panel{
+    width: 100%;
+}
+.card-title{
+    font-size: 1.5rem;
+}
+.card-body{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+table{
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
