@@ -1,6 +1,6 @@
 <!-- header/nav -->
 <header >
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container">
     <a class="navbar-brand" href="/">Inicio</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -10,25 +10,25 @@
     <div class="collapse navbar-collapse" id="mainNavbar">
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-4">
         <li class="nav-item">
-          <a href="/clientes" class="nav-link text-white">Clientes</a>
+          <a href="/clientes" class="nav-link ">Clientes</a>
         </li>
         <li class="nav-item">
-          <a href="/condicioniva" class="nav-link text-white">Condición IVA</a>
+          <a href="/condicioniva" class="nav-link ">Condición IVA</a>
         </li>
         <li class="nav-item">
-          <a href="/marcas" class="nav-link text-white">Marcas</a>
+          <a href="/marcas" class="nav-link ">Marcas</a>
         </li>
         <li class="nav-item">
-          <a href="/medidas" class="nav-link text-white">Medidas</a>
+          <a href="/medidas" class="nav-link ">Medidas</a>
         </li>
         <li class="nav-item">
-          <a href="/productos" class="nav-link text-white">Productos</a>
+          <a href="/productos" class="nav-link ">Productos</a>
         </li>
         <li class="nav-item">
-          <a href="/proveedores" class="nav-link text-white">Proveedores</a>
+          <a href="/proveedores" class="nav-link ">Proveedores</a>
         </li>
         <li class="nav-item">
-          <a href="/provincias" class="nav-link text-white">Provincias</a>
+          <a href="/provincias" class="nav-link ">Provincias</a>
         </li>
       </ul>
     </div>
